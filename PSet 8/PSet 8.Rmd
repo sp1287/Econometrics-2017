@@ -1,0 +1,189 @@
+---
+title: "PSet 8"
+author: "Spencer Papay - ssp2170"
+date: "4/18/2017"
+header-includes: \usepackage{rotating}
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+load("/Users/Spencer/Google Drive/Classes 2016-2017/Semester 2/Econometrics/PSet 8/fishdata.rdata")
+library(lmtest)
+library(AER)
+library(stargazer)
+```
+
+## Question 1
+
+Assumptions:
+$E(\mu|X) = 0,\space Z\epsilon [0,1],\space cov(Z,X)\neq 0,\space cov(Z,\mu)=0$ 
+
+Now:
+
+$\overline{Y_1}=\frac{1}{n_1}\sum_{i=Z_i=1}^{ }Y_i$
+
+$\overline{Y_0}=\frac{1}{n_0}=\sum_{i=Z_i=0}^{ }Y_i$
+
+$\overline{X_i}=\frac{1}{n_1}\sum_{i=Z_i=1}^{ }X_i$
+
+$\overline{X_0}=\frac{1}{n_0}\sum_{i=Z_i=0}^{ }X_i$
+
+$\hat{\beta_1}=\frac{\sum_{ }^{ }\left(Z-\overline{Z}\right)\left(Y_i-\overline{Y}\right)}{\sum_{ }^{ }\left(Z-\overline{Z}\right)\left(X_i-\overline{X}\right)}=\frac{\sum_{ }^{ }Z_i\left(Y_i-\overline{Y}\right)}{\sum_{ }^{ }Z_i\left(X_i-\overline{X}\right)}$
+
+$\sum_{ }^{ }z_i\left(Y_i-\overline{Y}\right)=\sum_{ }^{ }z_iY_i-\sum_{ }^{ }Z_i\overline{Y}=n_1Y_i-n_i\overline{Y}=n_1\left(\overline{Y_i}-\overline{Y}\right)$
+
+$\overline{Y}=\frac{1}{n}\sum_{ }^{ }Y_i=\frac{1}{n}\left(\sum_{i=z_i=1}^{ }Y_{i\ }+\sum_{i=z_i=0}^{ }Y_i\right)=\frac{1}{n}\left(n_1\overline{Y_i}+n_0\overline{Y_0}\right)=\frac{1}{n}\left(n_1\overline{Y_i}+\left(n-n_1\right)Y_0\right)$
+
+$n_1\left(\overline{Y_i}-\overline{X}\right)=n_1\left(\frac{n-n_1}{n}Y_{i\ }-Y_0\right)$
+
+$\sum_{ }^{ }Z_i\left(X_i-\overline{X}\right)=n_1\left(\overline{X_i}-\overline{X}\right)=n_1\left(\frac{n-n_1}{n}\ \overline{X_1}-X_0\right)$
+
+$\hat{\beta_1}=\frac{n_1\left(\frac{n-n_1}{n}\right)\left(\overline{Y_1}-\overline{Y_0}\right)}{n_1\left(\frac{n-n_1}{n}\right)\left(\overline{X_1}-\overline{X_0}\right)}$
+
+$\boxed{=\frac{\overline{Y_1}-Y_0}{\overline{X_1}-X_0}}$
+
+##Question 2
+
+a)
+$Y=\beta_0+\beta_1X_1^* + \beta^\prime_2X_2+\mu$
+$X_1$ is observed $X_1^*$
+$X_1=X_1^* + \epsilon_1$, meaning uncorrelated with $X_1^*$ and $X_2$.
+
+OLS regression of $Y$ on a constant term $X_1$ and $X_2$ gives inconsistent esitmator with errors-in-variables bias.
+
+$Y_i=\beta_0+\beta_1X_1+\left[\beta\ _1\left(X_1^*-X_1\right)+\mu_1^\prime\right]+\beta_2^\prime X_2+\mu$
+
+We run the regression: $Y_i=\beta_0+\beta_1X_1+\mu^\prime+\beta_2^{\prime}X_2+\mu$
+
+$\mu^\prime=\beta_1\left(X_1^{*}-X_1\right)+\mu$
+
+With measurement error, $X_1$ is correlated with $\mu^\prime$ $\therefore$ $\beta_1$ is biased.
+
+$cov\left(X_1,\mu^{\ '}\right)=cov\left(X_1,\beta_1\left(X_1^{\ast}-X_1\right)+\mu\right)\ $
+
+$=\beta_1cov\left(X_1,X_1^{\ast}-X_1\right)+cov\left(X_1,\mu_i\right)$
+
+$=\beta_1cov\left(X_1,X_1^{\ast}-X_1\right)$ if $cov(X_1,\mu_i)=0$ 
+
+Here, $X_1 = X_1^* +\epsilon_1$, which indicates zero random noise when $corr(X_1^*,\epsilon_1)=0$ and $corr(\mu_i,\epsilon_1)=0$
+
+$var(X_1^*)=\sigma^2_X+\sigma_\epsilon^2$
+$cov(X_1,X_1^*-X_1)=cov(X+\epsilon_\mu^\prime, -\epsilon_i) = -\sigma_\epsilon^2$
+
+$\therefore cov(X_1,\mu^\prime)=-\beta_1\sigma_v^2$
+
+$\hat{\beta_1} \rightarrow^p \beta_1 - \beta_1 \frac{\sigma_v^2}{\sigma_{x_1}^2}=\left(1-\frac{\sigma_v^2}{\sigma_{x_1}^2}\right)\beta_{1\ }=\boxed{\left(\frac{\sigma_x^2}{\sigma_x^2+\sigma_v^2}\right)\beta_1}$
+
+b)
+$\hat{\beta_1}$ is biased towards zero. An important assumption is $corr(X_1^*,\epsilon_1)=0$.
+
+c)
+$Z_1=X_1^*+\epsilon_2$, remember that $\epsilon_2$ is uncorrelated with $X_1^*, X_2, \mu, \epsilon_1$
+
+As in the best guess model, $Z_1 = E(X_1^*|W_i)$ where $E(U|W_i)=0$. $\therefore cov(Z_i, \mu^\prime)=cov(Z_1, \beta_1(X_1^*-Z_1)+\mu_1)=\beta_1 cov(Z_1, X_1^*-Z_1)+cov(Z_1,\mu_i)$
+$=0$ because $Z_i = E(X_i^*|W_i)$ and $E(U|W_i)=0$
+$\boxed{\therefore cov(Z_i,\mu^\prime)=0\space \therefore \hat{\beta_1} \text{is unbiased}}$
+
+##Question 3
+a)
+$\beta_1$ is the parameter of interest, which indicates how much your lifetime earnings are if you're a veteran in the Vietnam War.
+
+b)
+Being a veteran has a cosntant positive or negative effect on the log of lifetime earnings. If one is a veteran, since the variable is binary, the model predict you will earn a set amount difference than those who aren't.
+
+c)
+$\hat{\beta_2} = \frac{cov\left(wage,\beta_1\right)}{cov\left(veteran,\beta_2\right)}$
+
+Parameter of interest is by how much more or less one who was a veteran in Vietnam makes on the log of lifetime earnings, $\beta_1$. This is different than (a) because population and sample differs, and therefore a different estimator. In sum, the terms have different meanings and interpretations.
+
+d)
+It would not be a good estimator because it is then correlated with the error as preferences are involved. It is also no longer randomly assigned, and is thus biased and inconsistent.
+
+e)
+If an individual was eligible for the draft, there was a likelihood he would participate in the Vietnam War. It is a good IV because it was a randomized process and thus even more random than study of veterans who volunteered in the army. We ignore cases of those who dodged the draft for medical reasons or fled to Canada. This is a good IV as well because $corr(Z_1, V_i)\neq 0$ and $corr(Z_i, \mu)=0$.
+
+f)
+No, because this removes randomization which is replaced by education decision in the sample's past, which is correlated with the error, $\therefore corr(Z_1,\mu)\neq 0$.
+
+##Question 4
+a)
+```{r results="asis"}
+m1 <- lm(qty~price, data = fishdata)
+m2 <- lm(qty~price + day1 +day2 + day3 + day4 + cold +
+rainy, data = fishdata)
+m3 <- ivreg(qty~price|stormy, data=fishdata)
+m4 <- ivreg(qty~ price + day1 + day2 + day3 +day4 + cold
++rainy|stormy + day1 +day2 + day3 + day4 + cold + rainy,
+data=fishdata)
+stargazer(m1,m2,m3,m4, type = "latex" , title="OLS and IV
+Eetimates of Demand andFunctions with Stormy Weather as IV", digits=5, float.env = "sidewaystable")
+```
+
+b)
+The standard errors in the paper do not appear to be robust, so they are not the same as in our first two regressions. Our m4 also differs from the paper's. Our m3 standard errors appear to be the usual HC1 errors.
+
+c)
+In a storm, it was more difficult to fish offshore, so fewer fish would be caught. However, this doesn't imply that demand for fish would change as well. 
+
+d)
+If we run a regression of prices on stormy, see below. We find that stormy's coefficient is statistically significant. Stormy is not correlated with the error term in the explanatory equation, but we cannot feasibly check if it is correlated with the endogenous explanatory variables. 
+```{r}
+ m7 <- lm(price~stormy, data = fishdata)
+cov7<- vcov(m7, type="HC1")
+robust.se7 <- sqrt(diag(cov7))
+coeftest(m7, vcov. = vcovHC(m7, type="HC1"))
+```
+
+e)
+The standard errors seem quite similar on most variables with the exception of price. However, the regression appears to fit the data better when including $\text{windspeed}^2$.
+
+```{r results="asis"}
+m5 <- ivreg(qty~price|stormy + windspd +windspd2,
+data=fishdata)
+cov5 <- vcovHC(m5, type="HC1")
+robust.se5 <- sqrt(diag(cov5))
+m6 <- ivreg(qty~ price + day1 + day2 + day3 +day4 + cold
++rainy|stormy + day1 +day2 + day3 + day4 + cold + rainy +
+windspd +windspd2, data=fishdata)
+cov6 <- vcovHC(m6, type="HC1")
+robust.se6 <- sqrt(diag(cov6))
+stargazer(m1,m2,m3,m4,m5,m6, type="latex" , title="OLS and
+IV Estimates of Demand and Functions with Stormy Weather as IV, including Windspeed", digits=5, float.env = "sidewaystable")
+```
+
+f)
+IV estimation increased the implied elasticity of demand over 100%, making obvious the specification errors in the OLS estimator that were not apparent before.
+
+g)
+We test the hypothesis that the elasticity of demand is equal to -1. Hypotheses are:
+$H_0 = \beta_2 = -1$ vs. $\beta_2 \neq -1$. The t-test statistic is $\frac{\beta_2-1}{se\left(\beta_2\right)}$. With 10 degrees of freedom and at the 5% significance level, the rejection region is $|t| > 2.228$. $t_{m3}=-0.17$, $t_{m4}=-0.42$, $t_{m5}=-0.24$, $t_{m6}=-0.24$.
+
+None of the IV cases reject the null that demand is unit elastic. This means a unit increase produces the same amount of revenue, implying a local maximum.
+
+h)
+m5 and m6 are small and weak, and should not be used.
+```{r}
+m4First1 <- lm(price~stormy + day1 + day2 + day3 + day4 +
+cold + rainy, data = fishdata)
+m4First2 <- lm(price~1 + day1 + day2 + day3 + day4 + cold +
+rainy, data = fishdata)
+ m4ftest <- waldtest(m4First1, m4First2,
+ vcov=vcovHC(m4First1, type='HC1'))$F[2]
+ m5First1 <- lm(price~stormy + windspd + windspd2, data =
+fishdata)
+m5First2 <- lm(price~1 + windspd + windspd2, data =
+fishdata)
+m5ftest <- waldtest(m5First1, m5First2,
+vcov=vcovHC(m5First1, type='HC1'))$F[2]
+m6First1 <- lm(price~stormy + day1 + day2 + day3 + day4 +
+cold + rainy + windspd + windspd2, data = fishdata)
+m6First2 <- lm(price~1 + day1 + day2 + day3 + day4 + cold +
+rainy + windspd + windspd2, data = fishdata)
+m6ftest <- waldtest(m6First1, m6First2,
+vcov=vcovHC(m6First1, type='HC1'))$F[2]
+m4ftest
+m5ftest
+m6ftest
+```
+

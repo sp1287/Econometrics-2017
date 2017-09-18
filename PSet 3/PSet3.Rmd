@@ -1,0 +1,175 @@
+---
+title: "Problem Set 3"
+author: "Spencer Papay - ssp2170"
+date: "2/14/2017"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+load("/Users/Spencer/Google Drive/Classes 2016-2017/Semester 2/Econometrics/PSet 3/college.rdata")
+```
+
+## Question 1
+a)
+$U_i$ represents all other variables that influence a student's score beyond the time they had, such as intelligence, preparedness, and test taking ability. 
+
+b)
+The experiment designed $U_i$ and $X_i$ as independent (since time doesn't affect other factors), so it follows that $E(U_i|X_i)$ are independent. 
+
+c)
+     $\hat{Y_i}=49+0.24X_i$
+
+     $X_i = 90$
+
+     $\hat{Y_i}=49+0.24\times90$
+
+     $\hat{Y_i}=70.6$
+
+d)
+Estimated gain = $0.24 \times 10 = 2.4$ points
+
+e)
+The predicted score is $49 + 0.24 \times 240 = 106.6$. This prediction should not be taken seriously because it is extrapolating the data beyond the scope of the experiment's length and the covariate's bound. Just because an exam is longer does not mean all students score more than is possible.
+
+## Question 2
+a)
+```{r}
+m1 <- lm(ed~dist, data=college)
+coef(m1)
+```
+The estimated intercept is about 13.96, which translates to 139.6 miles away, with an estimated slope of -0.073, meaning each additional 10 miles distance between high school and the nearest college reduces years of education by .073.
+
+```{r, echo=FALSE}
+b0.hat <- coef(m1)[1]
+b1.hat <- coef(m1)[2]
+```
+
+
+b)
+With a 20 mile distance, since distances are measured in 10s of miles, $X=2$.
+
+Years of completed education 20 miles away:
+```{r}
+b0.hat + 2*b1.hat
+```
+
+With a 20 mile distance, since distances are measured in 10s of miles, $X=1$.
+
+Years of completed education 10 miles away:
+```{r}
+b0.hat + 1*b1.hat
+```
+
+Bob's years of college completed increases by .073 if his high school was 10 miles closer.
+
+c)
+```{r}
+summary(m1)
+```
+
+The reported value of $R^2 = 0.00745$, so only a miniscule fraction of variance in education completed is explained by distance from one's high school to the nearest college. This makes sense as many other factors are at play.
+
+d)
+
+
+```{r, include=FALSE}
+library(lmtest)
+library(sandwich)
+```
+
+```{r}
+coeftest(m1, vcov=vcovHC(m1, type = "HC1"))
+```
+
+The standard error of the slope is about 0.013, which yields a t-value of -5.46, giving an associated p-value of $5.012\times 10^{-8}$. We can therefore reject the null hypothesis at all above-stated levels.
+
+e)
+```{r}
+se.b1.hat <- coeftest(m1, vcov=vcovHC(m1, type = "HC1"))[2,2]
+```
+
+f)
+```{r}
+lb = b1.hat - se.b1.hat*1.96
+ub = b1.hat + se.b1.hat*1.96
+```
+
+```{r}
+lb
+ub
+```
+
+The confidence interval is (-0.0997, -0.0470)
+
+g)
+
+```{r}
+m2 = lm(ed~dist, data=college, subset=female==1)
+b0.hat.women <- coef(m2)[1]
+b1.hat.women <- coef(m2)[2]
+```
+
+```{r}
+b0.hat.women
+b1.hat.women
+```
+
+```{r}
+coeftest(m2, vcov=vcovHC(m2, type = "HC1"))
+```
+
+```{r}
+se.b1.hat.women <- coeftest(m2, vcov=vcovHC(m2, type = "HC1"))[2,2]
+lb_women = b1.hat.women - se.b1.hat.women*1.96
+ub_women = b1.hat.women + se.b1.hat.women*1.96
+```
+
+```{r}
+lb_women
+ub_women
+```
+
+The confidence interval is (-0.1003, -0.0280)
+
+h)
+
+```{r}
+m3 = lm(ed~dist, data=college, subset=female==0)
+b0.hat.men <- coef(m3)[1]
+b1.hat.men <- coef(m3)[2]
+```
+
+```{r}
+b0.hat.men
+b1.hat.men
+```
+
+```{r}
+coeftest(m3, vcov=vcovHC(m3, type = "HC1"))
+```
+
+```{r}
+se.b1.hat.men <- coeftest(m3, vcov=vcovHC(m3, type = "HC1"))[2,2]
+lb_men = b1.hat.men - se.b1.hat.men*1.96
+ub_men = b1.hat.men + se.b1.hat.men*1.96
+```
+
+```{r}
+lb_men
+ub_men
+```
+
+The confidence interval is (-0.1222, -0.0455)
+
+i)
+
+We can compute the t-value for this independent data using the formula below:
+
+$t=\frac{\hat{B}_{1,women}-\hat{B}_{1,men}}{\sqrt{SE\left(\hat{B}_{1,women}\right)^2+SE\left(\hat{B}_{1,men}\right)^2}}$
+
+$t=\frac{0.01967}{0.02689}=0.7314$
+
+This t-value indicates that the null hypothesis cannot be rejected at any significance level above .6384, which is the p-value. Therefore, the distance to college does not affect men and women differently, and is therefore due to other or unexplained factors.

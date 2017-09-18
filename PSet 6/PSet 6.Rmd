@@ -1,0 +1,132 @@
+---
+title: "PSet 6"
+author: "Spencer Papay - ssp2170"
+date: "3/30/2017"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+load("/Users/Spencer/Google Drive/Classes 2016-2017/Semester 2/Econometrics/PSet 6/rental.rdata")
+##load your own data here
+library(plm)
+library(stargazer)
+```
+
+## Question 1
+a)
+
+Panel data is comprised of observations on multiple entities, such as individuals, states, companies, etc. but each entity is observed at least two times with the same criteria/questions.
+
+Repeated cross sections are the same criteria/topics each time, but the experimenter gets different samples of individuals at each observation. Repeated cross sections do not track the same individuals at each observation, but rather a random subset. One would use cross section data when not concerned about tracking specific individuals' changes over time.
+
+b)
+
+Omitted variable bias, measurement error, and simultaneity bias all lead to bias in OLS. In each case, the missing data is causal concerning our variables and is correlated with our regression error, ($\mu_i$) as the regressor is biased and inconsistent. With OVB, we are missing an independent variable that is both a determinant of Y and correlated with at least one included regressor. In measurement error, the result is errors-in-variables bias and leads to correlation between the measured variable and the regression error ($\mu_i$). In simultaneous causality bias we have not only that X causes Y but that Y in return causes X.
+
+$\therefore$ $corr(X_i,\mu_i) \neq 0$ in all three cases, or in other words, $E[\mu_i|X_i]=0$, which is LSA #1. 
+
+OLS with a single cross section may encounter bias when sampling average student weight during finals season, whereas if we used panel data from before, during, and after finals season, it would eliminate the bias of the unhealthy eating habits of students during this season and perhaps might demonstrate that there is an increase in average weight during the stressful time.
+
+c)
+
+Estimator for $\beta_1$ is the OLS fixed effect estimator $\hat{\beta}_1$.
+
+Assumptions:
+1. $E(\mu_{it}|X_{i1},...,X_{iT},\alpha_i) = 0$.
+2. $(X_{i1},...,X_{iT},u_{i1},...,u_{iT}), i=1,...,n$ are i.i.d. in joint distribution
+3. $(X_{it}, \mu_{it})$ have finite fourth moments.
+4. There is no perfect multicollinearity (multiple Xs)
+
+We also need to add the “clustered” standard error formula because observations for the same entity are not independent, regardless that observations across entities are independent if entities are drawn by simple random sampling.
+
+Yes, however each entity has a different intercept and its possible to estimate $\beta_0$ per entity. It is possible to estimate 0 as the mean change in the dependent variable between periods 1 and 2 may be nonzero.
+
+## Question 2
+a) $\gamma_1$ is an entity fixed effect, and changes between entities but not over time. In the regression line, each entity ($i$) has a different intercept. Changes in it change the intercept of the regression line.
+
+b) $\gamma_t$ is a time fixed effect, and changes over time but not between entities. In the regression line, each time period ($t$) can have a different intercept. Changes in it change the intercept of the regression line.
+
+c) $\beta_1$ does not vary with either $i$ or $t$, rather only the intercepts vary. Variation in $x_1$ lets us identify $\beta_1$ with each entity ($i$), but only after we control for the average of each time period ($t$). It is the variation within each entity that defines $\beta_1$.
+
+d)
+$y_{it}=\beta_0+x_{it}\beta_1+\gamma_i+\gamma_t+\epsilon_{it}$ $\rightarrow$
+
+
+$y_{i,t}-y_{i,t-1}=\beta_0-\beta_0+(x_{i,t}\times\beta_1)-(x_{i,t-1}\times\beta_1)+\gamma_i-\gamma_i +(\gamma_t)-(\gamma_{t-1})+(\epsilon_{i,t})-(\epsilon_{i,t-1})$ $\rightarrow$
+
+
+$\boxed{\Delta(y_{i,t})=\beta_1\times\Delta(x_{i,t})+\Delta(\gamma_t)+\Delta(\epsilon_{i,t})}$
+
+e)
+$\gamma_i$ gets removed from out equation through difference from itself. This implies that entity fixed effects aren't estimated after the first difference is constructed. The common entity mean was already controlled for after looking at change within the entity ($i$) over time. 
+
+f)
+$\gamma_t$ remains in the equation after constructing the first difference but no longer measures the average, instead measuring the change in average between the two time periods $\gamma_t \text{ and } \gamma_{t-1}$.
+
+g)
+Introduce series of entity $i$ dummy variables to the first differenced equation: dummy variables represent entity ($i$) specific trend, rather than a change in between period trend, as the remainder of the difference equation variables represent. Each period $i,t$ generates a new dummy variables: resulting in ($t*\text{dummy}$) on right side. Their coeficients represent the change in the intercept resulting from the differences in y across entities. Thus interpret the coeficients on dummy variables as the effect on y that results purely from observed differences between entities.
+
+
+## Question 3
+a)
+```{r}
+m1 <- plm(lrent~y90+lpop+lavginc+pctstu, data=rental,
+          index=c("city","year"),model="pooling")
+se1 <- sqrt(diag(vcovHC(m1)))
+```
+The coefficient on y90 indicates that other things held equal, nominal rents grew by over 26% over the 10 year period.
+
+```{r results="asis"}
+stargazer(m1, type="latex", header=FALSE,
+          title="Effects on Rent Price",
+          omit.stat = c("f"), dep.var.caption = "Price on Log Scale",
+          intercept.bottom = FALSE, se=list(se1),
+          notes="Errors are heteroskedastic")
+```
+
+b)
+The pctstu coefficient indicates that one percentage point increase in pctstu is correllated to an increase in rent by half a percentage point (.5%). The errors show this to be statistically significant.
+
+c)
+No, as $\alpha_i$ does not appear in the equation. If $\alpha_i$ is in the error term, the errors between the two periods for each city are positively correlated, and this renders the usual OLS standard errors and t-statistics invalid.
+
+d)
+```{r}
+m2 <- plm(clrent~clpop+clavginc+cpctstu, data=rental,
+          index=c("city","year"),model="pooling")
+```
+The effect of $pctstu$ is more than twice as large as we estimated in the pooled OLS equation. In this regression, a one percentage point increase in $pctstu$ is estimated to increase rental rates by about 1.1%. However, this estimate is less precise when we difference the equations, as we may have expected. While $\alpha_i$ was differenced away, there may be other unobserved variables that change over time and are correlated with $\Delta pctstu$.
+
+```{r results="asis"}
+stargazer(m2, type="latex", header=FALSE,
+          title="Effects on Rent Price",
+          omit.stat = c("f"), dep.var.caption = "Change in Price on Log Scale",
+          intercept.bottom = FALSE,notes="Errors are not heteroskedastic")
+```
+
+e)
+```{r}
+se2 <- sqrt(diag(vcovHC(m2)))
+```
+
+```{r results="asis"}
+stargazer(m2, type="latex", header=FALSE,
+          title="Effects on Rent Price",
+          omit.stat = c("f"), dep.var.caption = "Change in Price on Log Scale",
+          intercept.bottom = FALSE,se=list(se2),notes="Errors are heteroskedastic")
+```
+
+f)
+```{r}
+m3 <- plm(lrent~y90+lpop+lavginc+pctstu, data=rental,
+          index=c("city","year"),model="within")
+se3 <- sqrt(diag(vcovHC(m3)))
+```
+
+```{r results="asis"}
+stargazer(m3, type="latex", header=FALSE,
+          title="Effects on Rent Price",
+          omit.stat = c("f"), dep.var.caption = "Price on Log Scale",
+          intercept.bottom = FALSE,se=list(se3),notes="Errors are heteroskedastic")
+```

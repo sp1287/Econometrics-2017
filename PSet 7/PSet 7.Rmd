@@ -1,0 +1,347 @@
+---
+title: "PSet 7"
+author: "Spencer Papay - ssp2170"
+date: "4/11/2017"
+header-includes: \usepackage{rotating}
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+load("/Users/Spencer/Google Drive/Classes 2016-2017/Semester 2/Econometrics/PSet 7/AmEx.rdata")
+library(ggplot2)
+library(sandwich)
+library(aod)
+library(stargazer)
+```
+
+## Question 1
+
+a)
+The linear probability model is a multiple regression model when Y is binary rather than continuous. Because the dependent variable is binary, the population regression function aligns to the probability that $Y=1$, given X, the independent variable..
+
+It is a multiple linear regression model ($Y_i = \beta_0+\beta_1X_{1i}+...+\beta_nX_{ni}+\mu_i$) applied to a binary (either 0 or 1) dependent variable $Y_i$. Because Y is binary, $E(Y|X_1,...,X_n)=P(Y=1|X_1,...,X_n)$, meaning the linear probability model is $P(Y=1|X_1,...,X_n)=\beta_0+\beta_1X_{1}+...+\beta_nX_{n}$
+
+Coefficient $\beta_i$ is the change in the probably that $Y=1$ associated with a one-unit change in $X_i$, holding the other regressors constant. They are estimated using OLS, keeping in mind OLS standard errors and CIs and hypothesis tests.
+
+b)
+Because probabilities cannot exceed 1, the probability that $Y=1$ of a given change in X must be nonlinear. E.g. a change a variable from .1 to .2 may have a big effect on Y, but once the variable is large enough, increasing the variable may not have any effect. In the linear model, the effect of a change in a variable is constant, which leads to predict probabilities that can drop below 0 for very low values of variables and can exceed 1 for high values. However, certain models deal with this misspecifcation, such as the probit and logit regression models. (See S&W pg. 387).
+
+c)
+$Y_i=\beta_0+\beta_1X_{1i}+...+\beta_nX_{ni}+\mu_i$
+Recall the variance of a Bernoulli random variable:
+$Var(Y) = P(Y=1)\cdot(1-P(Y=1))$
+Use to find the conditional variance of the error term:
+$Var(\mu_i|X_{1i},...,X_{ni})=Var(Y_i-(\beta_0+\beta_1X_{1i}+...+\beta_nX_{ni})|X_{1i},...,X_{ni})$
+
+$Var(\mu_i|X_{1i},...,X_{ni})=P(Y_i=1|X_{1i},...,X_{ni})\cdot(1-P(Y_i=1|X_{1i},...,X_{ni}))$
+
+$Var(\mu_i|X_{1i},...,X_{ni})=(\beta_0+\beta_1X_{1i}+...+\beta_nX_{ni})\cdot(1-\beta_0-\beta_1X_{1i}-...-\beta_nX_{ni})$
+
+$\boxed{Var(\mu_i|X_{1i},...,X_{ni})\neq\sigma^2_v}$
+
+## Question 2
+
+a) $\boxed{L(\beta_0,\beta_1) = \mathop \Pi \limits^n_{i=1} F(\beta_0+\beta_1X)^{Y_i} \cdot (1-F(\beta_0+\beta_1X))^{1-Y_i}}$
+
+b) $\boxed{log(L(\beta_0,\beta_1))=\mathop \sum\limits^n_{i=1}[Y_ilog(F(\beta_0+\beta_1X))+(1-Y_i)log(1-F(\beta_0+\beta_1X))]}$
+
+c) $\partial_{\beta_{n}}log(L(\beta_0,\beta_1))=\mathop \sum\limits^n_{i=1}[Y_i\partial_{\beta_n}log(F(\beta_0+\beta_1X))+(1-Y_i)\partial_{\beta_n}log(1-F(\beta_0+\beta_1X))]$
+
+For $K=0,1$ and $f(x)=\partial_xF(x)$:
+
+$\frac{f\left(x\right)}{F\left(x\right)}=\frac{\frac{e^{-x}}{\left(1+e^{-x}\right)^2}}{\frac{1}{\left(1+e^{-x}\right)}}=\frac{e^{-x}}{1+e^{-x}}=\frac{1}{e^x+1}=F\left(-x\right)=1-F\left(x\right)$
+
+and
+
+$\frac{f\left(x\right)}{1-F\left(x\right)}=\frac{f\left(x\right)}{F\left(-x\right)}=\frac{\frac{e^{-x}}{\left(1+e^{-x}\right)^2}}{\frac{1}{1+e^x}}=\frac{e^x+1}{\left(1+e^x\right)^2}=\frac{1}{1+e^{-x}}=F\left(x\right)$
+
+$\therefore \partial_{e_n}log(L(\beta_x,\beta_1)=\mathop \sum\limits^n_{i=1}\partial_{\beta_x}\beta_0+\beta_1X[Y_i(1-F(\beta_0+\beta_1X)-(1-X)F(\beta_0+\beta_1X)]$
+
+$=\mathop \sum\limits^n_{i=1}\partial_{\beta_x}\beta_0+\beta_1X[Y_i-Y_iF(\beta_0+\beta_1X-F(\beta_0+\beta_1X)+Y_iF(\beta_0+\beta_1X)]$
+
+$=\mathop \sum\limits^n_{i=1}\partial_{\beta_x}\beta_0+\beta_1X[Y_i-F(\beta_0+\beta_1X)]$
+
+$\therefore \text{First Order Conditions} = \boxed{\mathop \sum\limits^n_{i=1}\hat{\epsilon_i}=0, \mathop \sum\limits^n_{i=1}X_i\hat{\epsilon_i}=0}$ 
+
+where $\hat{\epsilon_i}=Y_i-F(\hat{\beta_0}+\hat{\beta_1}X)$
+
+d) The first order condiitons in the model have same structure. With $\hat{\mu_i}$ and OLS residuals:
+
+$\boxed{\mathop \sum\limits^n_{i=1}\hat{\mu_i}=0, \mathop \sum\limits^n_{i=1}X_i\hat{\mu_i}=0}$
+
+## Question 3
+
+a)
+Probit model for Y using $(X_1,...,X_4)$ models the probability that Y=1 using the cumulative standard normal distribution function. The model must follow the following:
+
+i. $P(Y=1|X)$ is increasing in X for $\beta_1 > 0$
+ii. $0\leq P(Y=1|X)\leq 1$ for all $x$.
+
+The parameter of interest is how different forms of prenatal care effect birthweight (e.g. the receiving of prenatal care, smoking during pregnancy, drinking, age of mother, etc.)
+
+b)
+$CDF:\space\Phi(Z)$
+$Z=\beta_0+\beta_1X_{1i}+\beta_2X_{2i}+\beta_3X_{3i}+\beta_4X_{4i}$
+$P(Y=1|X_1,...,X_4)=\Phi(\beta_1X_{1i}+\beta_2X_{2i}+\beta_3X_{3i}+\beta_4X_{4i})$
+
+We could collect data through appropriate methods and conduct a regression. We could after solve for the CDF of Z ($\Phi(Z)$). This would be $P(Y=1|X=x)$=area under the standard normal density curve to the left of Z. 
+
+Estimating, nonlinear least squares extends the concepts of OLS to models in which parameters enter nonlinearity. 
+
+$\mathop {min}\limits_{b_0, b_1, b_2, b_3, b_4} \mathop \sum\limits^n_{i=1}(Y_i - \Phi(b_0+b_1X_{1i}+b_2X_{2i}+b_3X_{3i}+b_4X_{4i}))^2$
+
+This can be solved using software such as R.
+
+c)
+
+I would test the multicolinearity between prenatal care and smoking during pregnancy. To modify this, we can create a variable of interaction using regression software. We want to test the interaction of these two variables.
+
+Here, this is ia case where $\frac{\Delta Y_1}{\Delta X_1}$ depends on $X_2$.
+
+$Y_i = \beta_0 + \beta_1X_1 + \beta_2X_2 + \beta_3X_3 + \beta_4X_4 + \beta_5(X_1 \times X_2) + \mu_i$
+
+We can isolate the variable of interest such that:
+
+$Y_i = \beta_0 + \beta_1X_1 + \beta_2X_2 + \beta_5(X_1 \times X_2) + \mu_i$
+
+And we can compare:
+
+a) $E(Y_i|X_1=0, X_2=x_2)=\beta_0+\beta_2x_2$
+b) $E(Y_i|X_1=1, X_2=x_2)=\beta_0+\beta_1+\beta_2x_2+\beta_3x_2$
+
+$(a)-(b)=\beta_1 + \beta_5x_2$
+
+
+d)
+If we were to use the model from part b, we would create separate regression models and potentially reject the joint null hypothesis but not either individual null hypothesis, which would imply that our friend is correct. If, however, we reject both the joint and the two individual nulls, our friend is wrong. This is all referring to the coefficient of interaction.
+
+
+## Question 4
+
+a)
+```{r}
+mean(AmEx$cardhldr)
+```
+78.28% are cardholders, and this sample is not representative of the greater US population.
+
+b)
+```{r}
+lpm1<-lm(cardhldr~income+age+selfempl+ownrent+acadmos, data=AmEx)
+selpm1 <- sqrt(diag(vcovHC(lpm1)))
+logit1<-glm(cardhldr~income+age+selfempl+ownrent+acadmos, family = binomial(link="logit"), data=AmEx)
+selogit1 <- sqrt(diag(vcovHC(logit1)))
+probit1<-glm(cardhldr~income+age+selfempl+ownrent+acadmos, family = binomial(link="probit"), data=AmEx)
+seprobit1 <- sqrt(diag(vcovHC(probit1)))
+```
+
+
+c)
+```{r, echo=TRUE}
+age <- AmEx$age
+income <- AmEx$income
+selfempl <- AmEx$selfempl
+ownrent <- AmEx$ownrent
+acadmos <- AmEx$acadmos
+cpredictdata <- data.frame(age=as.vector(quantile(age,.5)),
+                           income=as.vector(quantile(income,.5)),selfempl=as.numeric(0),
+                           ownrent=as.vector(quantile(ownrent,0)),acadmos=as.vector(quantile(acadmos,.5)))
+cpredictdataif1<-data.frame(age=as.vector(quantile(age,.5)),
+                            income=as.vector(quantile(income,.5)),selfempl=as.numeric(1),
+                            ownrent=as.vector(quantile(ownrent,0)),acadmos=as.vector(quantile(acadmos,.5)))
+#predict1 <- 
+  
+  predict.lm(lpm1,cpredictdataif1,type="response")-
+  predict.lm(lpm1,cpredictdata,type="response")
+```
+
+```{r, echo=TRUE}
+cpredictdata2 <- data.frame(age=as.vector(quantile(age,.5)),
+                            income=as.vector(quantile(income,.2)),selfempl=as.numeric(0),
+                            ownrent=as.vector(quantile(ownrent,0)),acadmos=as.vector(quantile(acadmos,.5)))
+cpredictdata2if1<-data.frame(age=as.vector(quantile(age,.5)),
+                             income=as.vector(quantile(income,.2)),selfempl=as.numeric(1),
+                             ownrent=as.vector(quantile(ownrent,0)),acadmos=as.vector(quantile(acadmos,.5)))
+#predict2 <- 
+  predict.lm(lpm1,cpredictdata2if1,type="response")-
+  predict.lm(lpm1,cpredictdata2,type="response")
+```
+
+```{r, echo=TRUE}
+cpredictdata3 <- data.frame(age=as.vector(quantile(age,.5)),
+                            income=as.vector(quantile(income,.8)),selfempl=as.numeric(0),
+                            ownrent=as.vector(quantile(ownrent,0)),acadmos=as.vector(quantile(acadmos,.5)))
+cpredictdata3if1<-data.frame(age=as.vector(quantile(age,.5)),
+                             income=as.vector(quantile(income,.8)),selfempl=as.numeric(1),
+                             ownrent=as.vector(quantile(ownrent,0)),acadmos=as.vector(quantile(acadmos,.5)))
+#predict3 <- 
+  predict.lm(lpm1,cpredictdata3if1,type="response")-
+  predict.lm(lpm1,cpredictdata3,type="response")
+```
+
+```{r, echo=TRUE}
+cpredictdata <- data.frame(age=as.vector(quantile(age,.5)),
+                           income=as.vector(quantile(income,.5)),selfempl=as.numeric(0),
+                           ownrent=as.vector(quantile(ownrent,0)),acadmos=as.vector(quantile(acadmos,.5)))
+cpredictdataif1<-data.frame(age=as.vector(quantile(age,.5)),
+                            income=as.vector(quantile(income,.5)),selfempl=as.numeric(1),
+                            ownrent=as.vector(quantile(ownrent,0)),acadmos=as.vector(quantile(acadmos,.5)))
+#predict4 <- 
+  predict.glm(logit1,cpredictdataif1,type="response")-
+  predict.glm(logit1,cpredictdata,type="response")
+```
+
+```{r, echo=TRUE}
+cpredictdata <- data.frame(age=as.vector(quantile(age,.5)),
+                           income=as.vector(quantile(income,.5)),selfempl=as.numeric(0),
+                           ownrent=as.vector(quantile(ownrent,0)),acadmos=as.vector(quantile(acadmos,.5)))
+cpredictdataif1<-data.frame(age=as.vector(quantile(age,.5)),
+                            income=as.vector(quantile(income,.5)),selfempl=as.numeric(1),
+                            ownrent=as.vector(quantile(ownrent,0)),acadmos=as.vector(quantile(acadmos,.5)))
+#predict5 <- 
+  predict.glm(logit1,cpredictdataif1,type="response")-
+  predict.glm(logit1,cpredictdata,type="response")
+```
+
+```{r, echo=TRUE}
+cpredictdata2 <- data.frame(age=as.vector(quantile(age,.5)),
+                            income=as.vector(quantile(income,.2)),selfempl=as.numeric(0),
+                            ownrent=as.vector(quantile(ownrent,0)),acadmos=as.vector(quantile(acadmos,.5)))
+cpredictdata2if1<-data.frame(age=as.vector(quantile(age,.5)),
+                             income=as.vector(quantile(income,.2)),selfempl=as.numeric(1),
+                             ownrent=as.vector(quantile(ownrent,0)),acadmos=as.vector(quantile(acadmos,.5)))
+#predict6 <- 
+  predict.glm(logit1,cpredictdata2if1,type="response")-
+  predict.glm(logit1,cpredictdata2,type="response")
+```
+
+```{r, echo=TRUE}
+cpredictdata <- data.frame(age=as.vector(quantile(age,.5)),
+                           income=as.vector(quantile(income,.5)),selfempl=as.numeric(0),
+                           ownrent=as.vector(quantile(ownrent,0)),acadmos=as.vector(quantile(acadmos,.5)))
+cpredictdataif1<-data.frame(age=as.vector(quantile(age,.5)),
+                            income=as.vector(quantile(income,.5)),selfempl=as.numeric(1),
+                            ownrent=as.vector(quantile(ownrent,0)),acadmos=as.vector(quantile(acadmos,.5)))
+#predict7 <-
+  predict.glm(probit1,cpredictdataif1,type="response")-
+  predict.glm(probit1,cpredictdata,type="response")
+```
+
+```{r, echo=TRUE}
+cpredictdata2 <- data.frame(age=as.vector(quantile(age,.5)),
+                            income=as.vector(quantile(income,.2)),selfempl=as.numeric(0),
+                            ownrent=as.vector(quantile(ownrent,0)),acadmos=as.vector(quantile(acadmos,.5)))
+cpredictdata2if1<-data.frame(age=as.vector(quantile(age,.5)),
+                             income=as.vector(quantile(income,.2)),selfempl=as.numeric(1),
+                             ownrent=as.vector(quantile(ownrent,0)),acadmos=as.vector(quantile(acadmos,.5)))
+#predict8 <- 
+  predict.glm(probit1,cpredictdata2if1,type="response")-
+  predict.glm(probit1,cpredictdata2,type="response")
+```
+
+```{r, echo=TRUE}
+cpredictdata3 <- data.frame(age=as.vector(quantile(age,.5)),
+                            income=as.vector(quantile(income,.8)),selfempl=as.numeric(0),
+                            ownrent=as.vector(quantile(ownrent,0)),acadmos=as.vector(quantile(acadmos,.5)))
+cpredictdata3if1<-data.frame(age=as.vector(quantile(age,.5)),
+                             income=as.vector(quantile(income,.8)),selfempl=as.numeric(1),
+                             ownrent=as.vector(quantile(ownrent,0)),acadmos=
+                               as.vector(quantile(acadmos,.5)))
+#predict9 <- 
+  predict.glm(probit1,cpredictdata3if1,type="response")-
+  predict.glm(probit1,cpredictdata3,type="response")
+```
+
+Stargazer output:
+
+LPM 50% | Logit 50% | Probit 50%
+------- | ----------| ----------
+-0.102  | -0.122    | -0.121
+
+
+LPM 80% | Logit 80% | Probit 80%
+------- | ----------| ----------
+-0.102  | -0.102    | -0.107
+
+
+LPM 20% | Logit 20% | Probit 20%
+------- | ----------| ----------
+-0.102  | -0.132    | -0.127
+
+d)
+```{r, message=FALSE}
+lpm2<-lm(cardhldr~income+age+selfempl+ownrent+acadmos+minordrg+majordrg, data=AmEx)
+selpm2 <- sqrt(diag(vcovHC(lpm2)))
+logit2<-glm(cardhldr~income+age+selfempl+ownrent+acadmos+minordrg+majordrg, family = binomial(link="logit"), data=AmEx)
+selogit2 <- sqrt(diag(vcovHC(logit2)))
+probit2<-glm(cardhldr~income+age+selfempl+ownrent+acadmos+minordrg+majordrg, family = binomial(link="probit"), data=AmEx)
+seprobit2 <- sqrt(diag(vcovHC(probit2)))
+```
+
+e)
+```{r, echo=TRUE}
+sum((predict(lpm1,type="response")>=.5)&(AmEx$cardhldr==1))+sum((predict(lpm1,type= "response")<.5)&(AmEx$cardhldr==0))
+```
+
+```{r, echo=TRUE}
+sum((predict(logit1,type="response")>=.5)&(AmEx$cardhldr==1))+sum((predict(logit1,type= "response")<.5)&(AmEx$cardhldr==0))
+```
+
+```{r, echo=TRUE}
+sum((predict(probit1,type="response")>=.5)&(AmEx$cardhldr==1))+sum((predict(probit1,type= "response")<.5)&(AmEx$cardhldr==0))
+```
+
+```{r, echo=TRUE}
+sum((predict(lpm2,type="response")>=.5)&(AmEx$cardhldr==1))+sum((predict(lpm2,type= "response")<.5)&(AmEx$cardhldr==0))
+```
+
+```{r, echo=TRUE}
+sum((predict(logit2,type="response")>=.5)&(AmEx$cardhldr==1))+sum((predict(logit2,type= "response")<.5)&(AmEx$cardhldr==0))
+```
+
+```{r, echo=TRUE}
+sum((predict(probit2,type="response")>=.5)&(AmEx$cardhldr==1))+sum((predict(probit2,type= "response")<.5)&(AmEx$cardhldr==0))
+```
+
+The highest numbers are logit2 model with 10577 and probit2 model with 10561, so these two models therefore have the highest explanatory power
+
+f)
+```{r, echo=TRUE}
+probability <- fitted(lpm2)
+hist(probability)
+```
+
+g)
+The range should be between 0 and 1. 147/12604 predicted values are below zero and 363/12604 are above 1. Because we can’t interpret these predicted values as probabilities, the LPM is mis-specified and not the right fit for what we’re trying to do.
+
+h)
+
+```{r, message=FALSE}
+predictions<-predict.glm(logit2,type="response")
+qplot(predictions,geom="histogram")
+```
+
+```{r, message=FALSE}
+predictions2<-predict.lm(lpm2,type="response")
+plot(predictions2, predictions, xlab = "Fitted Values", ylab = "Probability Cardholder")
+```
+
+The above plots indicate 0 to .1 the LPM and Logit models predict the same value but from .1 to .8 the LPM predicts a higher value than the Logit model.
+
+i)
+
+See the following regressors
+
+1) $\text{logit2}(.25)-1.234=-.3085$ but $\text{lpm2}=-0.117$
+
+2) $\text{probit2}(.4)-0.706=-.2824$ but $\text{lpm2}=-0.117$
+
+These are not great approximations, but this makes sense because the range of probabilities is much larger than [0.3, 0.7].
+
+```{r, echo=FALSE, results="asis"}
+stargazer(lpm1, lpm2, logit1, logit2, probit1, probit2, type="latex", header=FALSE,
+          omit.stat = c("f"), float.env = "sidewaystable", se=list(selpm1, selpm2, selogit1, selogit2, seprobit1, seprobit2))
+```
+
+
+

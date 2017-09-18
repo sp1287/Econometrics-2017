@@ -1,0 +1,123 @@
+---
+title: "Problem Set 2"
+author: "Spencer Papay - ssp2170"
+date: "2/7/2017"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+load("/Users/Spencer/Google Drive/Classes 2016-2017/Semester 2/Econometrics/PSet 2/Sportscards.rdata")
+library(ggplot2)
+```
+## A)
+
+$\left(\frac{1}{2}\right)\left(x\right)+\left(\frac{1}{2}\right)\left(1-x\right)=\frac{1}{2}=.50$
+
+## B)
+## i)
+```{r}
+m <- mean(cards$trade)
+## Proportion trading:
+m
+```
+## ii and iii)
+```{r}
+t.test(cards$trade, mu=.5)
+```
+
+**95% confidence interval: (0.261, 0.415)**
+
+**t = -4.1569, greater in magnitude than -1.96.**
+
+**This is significant.**
+
+
+## iv)
+
+As less than half the traders were not willing to trade their card for an opposite card even though they had the same value, we can see evidence of the endowment effect, but we cannot state if it is causal.
+
+## C)  
+## i) 
+
+```{r}
+mean(subset(cards,dealer==1)$years_trade)-mean(subset(cards,dealer==0)$years_trade)
+```
+
+## ii)
+```{r}
+p <- data.frame(dealer=c(1,0),years_trade=c(mean(subset(cards,dealer==1)$years_trade),mean(subset(cards,dealer==0)$years_trade)))
+ggplot(data = p) +
+  geom_bar(aes(x = dealer, y = years_trade),stat="summary",fun.y="mean")
+```
+
+## iii)
+
+```{r}
+dealer.set <- subset(cards,dealer==1)
+
+t.test(dealer.set$trade, mu=.5)
+```
+
+**mean: 0.4459**
+
+**95% confidence interval: (0.3240, 0.5619)**
+
+**t = -0.92912, NOT greater in magnitude than -1.96.**
+
+This is not significant under the proportion T test and the value lies in the confidence interval, so we do not reject the null hypothesis. There is not evidence of the endowment effect.
+
+``` {r}
+nondealer.set <- subset(cards,dealer==0)
+
+t.test(nondealer.set$trade, mu=.5)
+```
+
+**mean: 0.2297**
+
+**95% confidence interval: (0.1316, 0.3278)**
+
+**t = -5.4895, greater in magnitude than -1.96.**
+
+This is statistically significant and is not in the confidence interval, so there appears to be evidence of the endowment effect; however, we cannot necessarily state a causal effect.
+
+
+## D) 
+```{r}
+male <- subset(cards,male==1)
+t.test(male$trade)
+```
+
+**mean: 0.3534**
+
+**95% confidence interval: (0.2711, 0.4357)**
+
+**t = 8.4935, greater in magnitude than 1.96.**
+
+This is statistically significant and is not in the confidence interval, so there appears to be evidence of the endowment effect; however, we cannot necessarily state a causal effect.
+
+``` {r}
+female <- subset(cards,male==0)
+t.test(female$trade, mu=.5)
+```
+
+**mean: 0.20**
+
+**95% confidence interval: (-0.02929, 0.4293)**
+
+**t = -2.8062, greater in magnitude than 1.96.**
+
+This is statistically significant and is not in the confidence interval, so there appears to be evidence of the endowment effect; however, we cannot necessarily state a causal effect.
+
+All in all, there seems to be results of the endowment effect in both males and females. Whether this difference is significant between males and females would require a difference between proportions hypothesis test, which is beyond the scope of what was asked.
+
+## E)
+```{r}
+educated <- subset(cards,education > 4 & dealer == 1)
+noneducated <- subset(cards,education <= 4 & dealer == 1)
+
+t.test(educated$trade, noneducated$trade)
+
+```
+
+The T-test indicates that there is not a statistically significant difference in trading proportions of college-educated and higher dealers versus dealers without a college education or lower. Therefore, there does not seem to be an impact of education on experience; the effect of experience seems to be consistent regardless of education.
